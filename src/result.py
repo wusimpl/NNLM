@@ -1,34 +1,33 @@
 import numpy as np
-import time
 import math
+
+"""Load file name via repositories
+
+   Args
+   ----
+       voc_fname: str
+            Vocabulary repository
+       word_embeddings_fname: str
+            np array, word embeddings repository
+
+   Returns
+   -------
+       voc_file: numpy.array
+            An numpy array contain chinese character or words
+       word_embeddings_file: numpy.array
+            An numpy array contain vectors
+   """
 
 
 def load(voc_fname, word_embeddings_fname):
-    """Load file name via repositories
-
-    Args
-    ----
-        voc_fname: str
-             Vocabulary repository
-        word_embeddings_fname: str
-             np array, word embeddings repository
-
-    Returns
-    -------
-        voc_file: numpy.array
-             An numpy array contain chinese character or words
-        word_embeddings_file: numpy.array
-             An numpy array contain vectors
-    """
-    voc_file = np.load('./data/vocab.zh.txt')
-    word_embeddings_file = np.load('nnlm_word_embeddings.zh.npy')
-    if len(voc_file) == len(word_embeddings_file):
-        print("length are not the same!!!!")
+    voc_file = np.load(voc_fname)
+    word_embeddings_file = np.load(word_embeddings_fname)
+    if len(voc_file) != len(word_embeddings_file):
+        print("length are not the same!!!!voc:%d,embeddings:%d" % (len(voc_file), word_embeddings_file.shape[0]))
     return voc_file, word_embeddings_file
 
 
-def cos_sim_numpy(vector1, vector2):
-    """Implement cosine similarity in the range between [-1, 1]
+"""Implement cosine similarity in the range between [-1, 1]
 
     Args
     ----
@@ -41,9 +40,13 @@ def cos_sim_numpy(vector1, vector2):
 
 
     """
+
+
+def cos_sim_numpy(vector1, vector2):
     numerator = sum(vector1 * vector2)
-    denominator = math.sqrt(sum(vector1**2) * sum(vector2**2))
-    return numerator/denominator
+    denominator = math.sqrt(sum(vector1 ** 2) * sum(vector2 ** 2))
+    return numerator / denominator
+
 
 def run_similar_lst(search_word):
     '''Generate a sorted word similarity list
@@ -61,7 +64,8 @@ def run_similar_lst(search_word):
     lst = list()
     for v in range(len(f)):
         lst.append((voc_file[v], cos_sim_numpy(f[v], target_vector)))
-    return sorted(lst, key=lambda x:x[1], reverse=True)
+    return sorted(lst, key=lambda x: x[1], reverse=True)
+
 
 def show(word, topn=10):
     """Find the top-N most similar words
@@ -76,40 +80,14 @@ def save(fname_prefix, str_obj):
         wf.write(str_obj)
 
 
-# Step 1 : load two files
-voc_fname = './data/vocab.zh.txt'
-word_embeddings_fname = 'nnlm_word_embeddings.zh.npy'
+if __name__ == '__main__':
+    # Step 1 : load two files
+    voc_file, f = load("data/vocab", "data/nnlm_word_embeddings.npy")
+    vocab_length = len(voc_file)
+    # In my opinion
+    # Step 2 : show top-N similarity
+    show("I", topn=100)
+    show("am", topn=100)
+    show("a", topn=100)
 
-voc_file, f = load(voc_fname, word_embeddings_fname)
-print(len(voc_file) == len(f))
-
-
-# Step 2 : show top-N similarity
-search_word = '受業'
-start = time.time()
-
-my_word = '遊方'
-show(my_word, 5)
-
-
-my_word = '蔬食'
-show(my_word, 5)
-
-end = time.time()
-print('', end - start)
-
-
-# my_word = '受業'
-# show(my_word, 10)
-#
-# my_word = '誦經'
-# show(my_word, 10)
-#
-# my_word = '涅槃'
-# show(my_word, 10)
-#
-#
-# my_word = '佛法'
-# show(my_word, 10)
-
-# Step 3 : save it if you need
+    # Step 3 : save it if you need

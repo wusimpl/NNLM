@@ -18,8 +18,9 @@ class TextLoader:
         self.seq_length = seq_length
         self.mini_frq = mini_frq
 
-        input_file = os.path.join(data_dir, "input_zh_size1.txt")
-        vocab_file = os.path.join(data_dir, "vocab.zh.txt")
+        input_file = os.path.join(data_dir, "input.txt")
+        vocab_file = os.path.join(data_dir, "vocab")
+        self.vocab_txt = os.path.join(data_dir, "vocab.txt")
 
         self.preprocess(input_file, vocab_file)
         self.create_batches()
@@ -34,6 +35,9 @@ class TextLoader:
         # most_common()返回按出现次数排序的单词 eg.:{('我',100),('的',34)}，mini_frq规定了最小的频次，低于此频次不进入词汇表
         vocabulary_inv = ['<START>', '<UNK>', '<END>'] + [x[0] for x in word_counts.most_common() if
                                                           x[1] >= self.mini_frq]
+        with open(self.vocab_txt, "w") as f:
+            f.write('\n'.join(vocabulary_inv))
+
         vocabulary = {x: i for i, x in enumerate(vocabulary_inv)}  # 依据vocab_inv生成索引字典
         return [vocabulary, vocabulary_inv]
 
